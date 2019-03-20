@@ -1,0 +1,2 @@
+0 -> fake or not smile
+1 -> real smile
