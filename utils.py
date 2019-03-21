@@ -61,4 +61,5 @@ def load_targets(folder):
 
 
 if __name__ == "__main__":
-    print(decode_img_folder('./raw_data', './data'))
+    print(decode_img_folder('raw_data', 'data'))
+
