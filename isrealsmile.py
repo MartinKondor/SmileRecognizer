@@ -1,6 +1,5 @@
 import numpy as np
 from PIL import Image
-from matplotlib.pyplot import imshow, show 
 from argparse import ArgumentParser
 from sklearn.externals.joblib import load as load_model
 
@@ -15,11 +14,12 @@ if __name__ == '__main__':
 		img = Image.open(args.image_path)
 	except FileNotFoundError:
 		print('The given image "%s" is not found' % args.image_path)		
-		exit()
+		exit(1)
 	
 	if args.show:
-		imshow(img)	
-		show()
+		from matplotlib import pyplot as plt
+		plt.imshow(img)
+		plt.show()
 	
 	img = img.convert('L')  # convert image to black and white
 	img = img.resize((300, 168), Image.ANTIALIAS)  # resize to the acceptable size
