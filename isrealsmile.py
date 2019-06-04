@@ -1,10 +1,16 @@
-import numpy as np
+# Example usage:
+# $ python isrealsmile.py --show C:\Users\kondorm\scikit_learn_data\lfw_home\lfw_funneled\Arnold_Schwarzenegger\Arnold_Schwarzenegger_0006.jpg
+# $ python isrealsmile.py C:\Users\kondorm\scikit_learn_data\lfw_home\lfw_funneled\Yoko_Ono\Yoko_Ono_0003.jpg
+from numpy import array
 from PIL import Image
 from argparse import ArgumentParser
-from sklearn.externals.joblib import load as load_model
+from sklearn.externals import joblib
+from time import time
 
 
 if __name__ == '__main__':
+	start_time = time()
+
 	parser = ArgumentParser()
 	parser.add_argument('image_path', help='path to the image you want to classify')
 	parser.add_argument('--show', help='if present, show the image', action='store_true')
@@ -20,11 +26,14 @@ if __name__ == '__main__':
 		from matplotlib import pyplot as plt
 		plt.imshow(img)
 		plt.show()
-	
-	img = img.convert('L')  # convert image to black and white
-	img = img.resize((300, 168), Image.ANTIALIAS)  # resize to the acceptable size
-	data = np.array(img.getdata())  # extract data from img
 
-	model = load_model('trained_models/best_model.pkl') 
-	print( 'It\'s a real smile.' if model.predict([data])[0] == 1 else 'It\'s a fake smile' )
+	img = array(img.convert('L').resize((90, 80))).reshape(7200)
 
+	encoder = joblib.load('trained/class_encoder.pkl')
+	scaler = joblib.load('trained/data_normalizer.pkl')
+	pca = joblib.load('trained/pca.pkl')
+	model = joblib.load('trained/mlp_model.pkl')
+
+	result = encoder.inverse_transform(model.predict(pca.transform(scaler.transform((img,)))))
+	print('Smile' if result[0][0] else 'Not smile')
+	print('Prediction under', time() - start_time, 'seconds')

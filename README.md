@@ -4,16 +4,25 @@ Real or fake smile recognizer.
 
 # Usage
 
-Start with the command:
-
 ```
-python main.py
+python isrealsmile.py -h
 ```
 
-# Built With
+# Data folder
 
-* [Pillow](https://python-pillow.org/) - Python Imaging Library, with the following [license](https://github.com/python-pillow/Pillow/blob/master/LICENSE).
+```
+Arigbabu, Olasimbo Ayodeji, et al. "Smile detection using hybrid face representation."
+Journal of Ambient Intelligence and Humanized Computing (2016): 1-12.
+
+C. Sanderson, B.C. Lovell. Multi-Region Probabilistic Histograms for Robust and
+Scalable Identity Inference.
+ICB 2009, LNCS 5558, pp. 199-208, 2009
+
+Huang GB, Mattar M, Berg T, Learned-Miller E (2007) Labeled faces in the wild:
+a database for studying face recognition in unconstrained environments.
+University of Massachusetts, Amherst, Technical Report
+```
 
 # License
 
-This project is licensed under the BSD 3-Clause License - see the LICENSE file for details.
+See the [LICENSE](LICENSE) file for details.
