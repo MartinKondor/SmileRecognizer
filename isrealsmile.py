@@ -1,6 +1,6 @@
 # Example usage:
-# $ python isrealsmile.py --show C:\Users\kondorm\scikit_learn_data\lfw_home\lfw_funneled\Arnold_Schwarzenegger\Arnold_Schwarzenegger_0006.jpg
-# $ python isrealsmile.py C:\Users\kondorm\scikit_learn_data\lfw_home\lfw_funneled\Yoko_Ono\Yoko_Ono_0003.jpg
+# $ python isrealsmile.py --show %userprofile%\scikit_learn_data\lfw_home\lfw_funneled\Arnold_Schwarzenegger\Arnold_Schwarzenegger_0006.jpg
+# $ python isrealsmile.py %userprofile%\scikit_learn_data\lfw_home\lfw_funneled\Yoko_Ono\Yoko_Ono_0003.jpg
 from numpy import array
 from PIL import Image
 from argparse import ArgumentParser
