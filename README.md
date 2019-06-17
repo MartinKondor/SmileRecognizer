@@ -1,12 +1,12 @@
-# IsRealSmile
+# SmileRecognizer
 
-[![Project Status](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/MartinKondor/IsRealSmile/)
-[![version](https://img.shields.io/badge/version-2019.07-brightgreen.svg)](https://github.com/MartinKondor/IsRealSmile)
-[![GitHub Issues](https://img.shields.io/github/issues/MartinKondor/IsRealSmile.svg)](https://github.com/MartinKondor/IsRealSmile/issues)
+[![Project Status](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/MartinKondor/SmileRecognizer/)
+[![version](https://img.shields.io/badge/version-2019.07-brightgreen.svg)](https://github.com/MartinKondor/SmileRecognizer)
+[![GitHub Issues](https://img.shields.io/github/issues/MartinKondor/SmileRecognizer.svg)](https://github.com/MartinKondor/SmileRecognizer/issues)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-blue.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Real or fake smile recognizer.
+Smile recognizer AI.
 
 ## Getting Started
 
@@ -37,7 +37,7 @@ Model files will be saved in the `trained` directory and will overwrite the exis
 To use the trained model run
 
 ```
-$ python isrealsmile.py -h
+$ python issmile.py -h
 ```
 
 and see what commands you can run.
@@ -45,8 +45,8 @@ and see what commands you can run.
 ### Example
 
 ```
-$ python isrealsmile.py --show %userprofile%\scikit_learn_data\lfw_home\lfw_funneled\Arnold_Schwarzenegger\Arnold_Schwarzenegger_0006.jpg
-$ python isrealsmile.py --show %userprofile%\scikit_learn_data\lfw_home\lfw_funneled\Yoko_Ono\Yoko_Ono_0003.jpg
+$ python issmile.py --show %userprofile%\scikit_learn_data\lfw_home\lfw_funneled\Arnold_Schwarzenegger\Arnold_Schwarzenegger_0006.jpg
+$ python issmile.py --show %userprofile%\scikit_learn_data\lfw_home\lfw_funneled\Yoko_Ono\Yoko_Ono_0003.jpg
 ```
 
 ## Contributing
