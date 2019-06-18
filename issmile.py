@@ -36,10 +36,14 @@ if __name__ == '__main__':
 
     img = np.array(img.convert('L').resize((90, 80))).reshape(7200)
 
-    encoder = joblib.load('trained/class_encoder.pkl')
-    scaler = joblib.load('trained/data_normalizer.pkl')
-    pca = joblib.load('trained/pca.pkl')
-    model = joblib.load('trained/mlp_model.pkl')
+    try:
+        encoder = joblib.load('trained/class_encoder.pkl')
+        scaler = joblib.load('trained/data_normalizer.pkl')
+        pca = joblib.load('trained/pca.pkl')
+        model = joblib.load('trained/mlp_model.pkl')
+    except FileNotFoundError:
+        print('Before usage you must download the trained models from github or train the model yourself')
+        exit(0)
 
     result = encoder.inverse_transform(model.predict(pca.transform(scaler.transform((img,)))))
     print('Smile' if result[0][0] else 'Not smile')

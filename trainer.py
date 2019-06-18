@@ -7,8 +7,8 @@ from sklearn.datasets import get_data_home
 from sklearn.datasets import fetch_lfw_people
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, Normalizer
-from sklearn.decomposition import PCA
 from sklearn.externals import joblib
+from sklearn.neural_network import MLPClassifier
 
 
 DATA_DIR = os.path.join(get_data_home(), 'lfw_home', 'lfw_funneled')
@@ -92,48 +92,32 @@ X_test_scaled = scaler.transform(np.array(X_test, dtype=np.float64))
 y_train_encoded = encoder.fit_transform(y_train.reshape(-1, 1)).toarray()
 y_test_encoded = encoder.transform(y_test.reshape(-1, 1)).toarray()
 
-del X_train, X_test, y_train, y_test
+del X_train, X_test
 
 
-pca = PCA(n_components=2, whiten=True, random_state=1)
-pca.fit(X_train_scaled)
-
-X_train_pca = pca.transform(X_train_scaled)
-X_test_pca = pca.transform(X_test_scaled)
-
-del X_train_scaled, X_test_scaled
-
-
-print(len(X_train_pca), 'train images')
-print(len(X_test_pca), 'test images')
+print(len(X_train_scaled), 'train images')
+print(len(X_test_scaled), 'test images')
 
 print('Saving preprocessors ...')
 joblib.dump(encoder, 'trained/class_encoder.pkl')
 joblib.dump(scaler, 'trained/data_normalizer.pkl')
-joblib.dump(pca, 'trained/pca.pkl')
-del encoder, scaler, pca
+del encoder, scaler
 
 print('Training model ...')
-# TODO: release memory
-print()
-print(locals())
-print()
+# Release some memory
 gc.collect()
 
-from sklearn.neural_network import MLPClassifier
-
-
 model = MLPClassifier(
-    hidden_layer_sizes=[50],
+    hidden_layer_sizes=[250],
     max_iter=1000,
-    learning_rate_init=0.9,
-    alpha=0.2,
+    learning_rate_init=0.01,
+    alpha=0.9,
     random_state=6
 )
-model.fit(X_train_pca, y_train_encoded)
+model.fit(X_train_scaled, y_train_encoded)
 
-print('Accuracy on train set:', model.score(X_train_pca, y_train_encoded))
-print('Accuracy on test set:', model.score(X_test_pca, y_test_encoded))
+print('Accuracy on train set:', model.score(X_train_scaled, y_train_encoded))
+print('Accuracy on test set:', model.score(X_test_scaled, y_test_encoded))
 
 print('Saving models ...')
 joblib.dump(model, 'trained/mlp_model.pkl')
