@@ -3,17 +3,19 @@ import os
 from PIL import Image
 
 import numpy as np
-from sklearn.datasets import get_data_home
+import seaborn as sns
 from sklearn.datasets import fetch_lfw_people
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, Normalizer
-from sklearn.externals import joblib
-from sklearn.neural_network import MLPClassifier
+from keras.utils.np_utils import to_categorical
+from keras.models import Sequential
+from keras.layers.convolutional import Conv2D, MaxPooling2D
+from keras.layers import Dense, Dropout, Flatten
+from matplotlib import pyplot as plt
+
+from utils import loadimg, DATA_DIR, IMG_SHAPE 
 
 
-DATA_DIR = os.path.join(get_data_home(), 'lfw_home', 'lfw_funneled')
-IMG_SHAPE = (90, 80)
-NUMBER_OF_IMG_TO_LOAD = 600
+NUMBER_OF_IMG_TO_LOAD = 1200
 
 if not os.path.isdir(DATA_DIR):
     fetch_lfw_people(resize=.7)
@@ -35,21 +37,8 @@ print('Load & prepare images ...')
 print('Number of NON_SMILE_IMAGES', len(NON_SMILE_IMAGES))
 print('Number of SMILE_IMAGES', len(SMILE_IMAGES))
 
-
-def loadimg(flist, i):
-    img_filename = flist[i]
-    img_path = '_'.join(flist[i].split('_')[:2])
-    filename = os.path.join(DATA_DIR, img_path, img_filename)
-
-    return np.array(Image.open(filename) \
-                    .convert('L') \
-                    .resize(IMG_SHAPE)) \
-                    .reshape(IMG_SHAPE[0]*IMG_SHAPE[1])
-
-
 X = []
 y = []
-
 
 # load non smiling images
 for i in range(len(NON_SMILE_IMAGES)):
@@ -75,49 +64,91 @@ for i in range(len(SMILE_IMAGES)):
 
 # convert them to numpy.ndarray
 X = np.array(X)
-y = np.array(y)
-
+y = np.array(y)  # 1 = Smile, 0 = Non-smile
+y = to_categorical(y)
 
 # preprocessing
 print('Preprocessing ...')
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.1, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.1, random_state=1, shuffle=True)
 del X, y, NON_SMILE_IMAGES, SMILE_IMAGES, DATA_DIR, NUMBER_OF_IMG_TO_LOAD, i
 
-encoder = OneHotEncoder(categories='auto')
-scaler = Normalizer()
+X_train = X_train / 255
+X_test = X_test / 255
 
-X_train_scaled = scaler.fit_transform(np.array(X_train, dtype=np.float64))
-X_test_scaled = scaler.transform(np.array(X_test, dtype=np.float64))
-
-y_train_encoded = encoder.fit_transform(y_train.reshape(-1, 1)).toarray()
-y_test_encoded = encoder.transform(y_test.reshape(-1, 1)).toarray()
-
-del X_train, X_test
-
-
-print(len(X_train_scaled), 'train images')
-print(len(X_test_scaled), 'test images')
-
-print('Saving preprocessors ...')
-joblib.dump(encoder, 'trained/class_encoder.pkl')
-joblib.dump(scaler, 'trained/data_normalizer.pkl')
-del encoder, scaler
+print(len(X_train), 'train images')
+print(len(X_test), 'test images')
 
 print('Training model ...')
 # Release some memory
 gc.collect()
 
-model = MLPClassifier(
-    hidden_layer_sizes=[250],
-    max_iter=1000,
-    learning_rate_init=0.01,
-    alpha=0.9,
-    random_state=6
+# Building the model
+model = Sequential()
+model.add(Conv2D(32, (3, 3), activation='relu', input_shape=X_train.shape[1:]))
+model.add(Conv2D(32, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+model.add(Flatten())
+model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(2, activation='softmax'))
+model.compile(
+    loss='categorical_crossentropy',
+    optimizer='adam',
+    metrics=['acc']
 )
-model.fit(X_train_scaled, y_train_encoded)
 
-print('Accuracy on train set:', model.score(X_train_scaled, y_train_encoded))
-print('Accuracy on test set:', model.score(X_test_scaled, y_test_encoded))
+# Training
+N_OF_EPOCHS = 10
+history = model.fit(x=X_train, y=y_train, epochs=N_OF_EPOCHS, batch_size=64, validation_data=(X_test, y_test,))
 
-print('Saving models ...')
-joblib.dump(model, 'trained/mlp_model.pkl')
+# Visualizing errors and accuracy
+sns.set()
+x = range(N_OF_EPOCHS)
+
+plt.subplot(121)
+plt.title('Accuracy')
+plt.plot(x, history.history['acc'], color='purple', label='Training accuracy')
+plt.plot(x, history.history['val_acc'], color='red', label='Validation accuracy')
+plt.legend()
+
+plt.subplot(122)
+plt.title('Loss')
+plt.plot(x, history.history['loss'], color='purple', label='Training loss')
+plt.plot(x, history.history['val_loss'], color='red', label='Validation loss')
+plt.legend()
+plt.show()
+
+print('Saving model ...')
+model.save('trained/cnn.h5')
+"""
+The model's summary:
+```python
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+conv2d_1 (Conv2D)            (None, 78, 88, 32)        896
+_________________________________________________________________
+conv2d_2 (Conv2D)            (None, 76, 86, 32)        9248
+_________________________________________________________________
+max_pooling2d_1 (MaxPooling2 (None, 38, 43, 32)        0
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 38, 43, 32)        0
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 52288)             0
+_________________________________________________________________
+dense_1 (Dense)              (None, 128)               6692992
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 128)               0
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 258
+=================================================================
+Total params: 6,703,394
+Trainable params: 6,703,394
+Non-trainable params: 0
+_________________________________________________________________
+```
+
+Accuracy on train set: **99.9**
+Accuracy on test set: **88.99**
+"""

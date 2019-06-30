@@ -7,8 +7,9 @@ $ python issmile.py %userprofile%\scikit_learn_data\lfw_home\lfw_funneled\Yoko_O
 import argparse
 
 import numpy as np
-from PIL import Image
-from sklearn.externals import joblib
+from keras.models import load_model
+
+from utils import vectorizeimg
 
 
 if __name__ == '__main__':
@@ -24,7 +25,7 @@ if __name__ == '__main__':
         exit(0)
 
     try:
-        img = Image.open(args.image_path)
+        img = vectorizeimg(args.image_path)
     except FileNotFoundError:
         print('The given image "%s" is not found' % args.image_path)		
         exit(1)
@@ -34,16 +35,13 @@ if __name__ == '__main__':
         plt.imshow(img)
         plt.show()
 
-    img = np.array(img.convert('L').resize((90, 80))).reshape(7200)
-
     try:
-        encoder = joblib.load('trained/class_encoder.pkl')
-        scaler = joblib.load('trained/data_normalizer.pkl')
-        pca = joblib.load('trained/pca.pkl')
-        model = joblib.load('trained/mlp_model.pkl')
+        model = load_model('./trained/cnn.h5')
     except FileNotFoundError:
         print('Before usage you must download the trained models from github or train the model yourself')
         exit(0)
 
-    result = encoder.inverse_transform(model.predict(pca.transform(scaler.transform((img,)))))
-    print('Smile' if result[0][0] else 'Not smile')
+    input_data = np.array([img])
+    prediction = model.predict(input_data)
+    prediction = np.argmax(prediction, axis=1)
+    print('This is NOT a smile.' if prediction == 0 else 'This is a smile.')
