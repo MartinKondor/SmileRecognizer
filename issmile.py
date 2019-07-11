@@ -25,7 +25,7 @@ if __name__ == '__main__':
         exit(0)
 
     try:
-        img = vectorizeimg(args.image_path)
+        img = vectorizeimg(args.image_path) / 255
     except FileNotFoundError:
         print('The given image "%s" is not found' % args.image_path)		
         exit(1)
