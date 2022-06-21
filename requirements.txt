@@ -1,6 +1,6 @@
 seaborn==0.8.1
 matplotlib==2.2.2
 Keras==2.2.4
-numpy==1.16.3
+numpy==1.22.0
 Pillow==6.0.0
 scikit_learn==0.21.2
